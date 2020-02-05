@@ -42,12 +42,18 @@ export PATH=$(pwd)/gcc-arm-none-eabi-9-2019-q4-major/bin:$PATH
 To get the source code and build the U-Boot bootloader run the following commands:
 ```sh
 cd $GUIDEDIR
-git clone https://github.com/Xilinx/u-boot-xlnx.git
 cd u-boot-xlnx
 export CROSS_COMPILE=arm-none-eabi-
 export ARCH=arm
-make zynq_zybo_defconfig
+make zynq_zybo_z7_defconfig
 make -j$(nproc)
+```
+
+### Serial Litex loader
+
+To get the serial loader run the following command:
+```sh
+wget https://raw.githubusercontent.com/enjoy-digital/litex/master/litex/tools/litex_term.py
 ```
 
 ## Building the bitstream
@@ -89,24 +95,39 @@ make BR2_EXTERNAL=../linux-on-litex-vexriscv/buildroot/ litex_vexriscv_defconfig
 make
 ```
 
-## Booting the system
-Copy all the required files to SD card:
+To build devicetree image run the following command:
 ```sh
-cp $GUIDEDIR
-cp $GUIDEDIR
-cp $GUIDEDIR
-cp $GUIDEDIR
-cp $GUIDEDIR
-## Building the bitstream
+dtc -I dts -O dtb -o $GUIDEDIR/linux-files/rv32.dtb $GUIDEDIR/linux-files/rv32.dts
 ```
+
 ### Prepare SD-Card
 
 Follow the [official SD card preparation guide](https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/18842385/How+to+format+SD+card+for+SD+boot) to create and format bootable Zynq-7000 SD card.
+Copy all the required files to SD card:
 
+```sh
+cp $GUIDEDIR/linux-files/rv32.dtb /path/to/mountpoint
+cp $GUIDEDIR/linux-files/emulator.bin /path/to/mountpoint
+cp $GUIDEDIR/u-boot-xlnx/spl/boot.bin /path/to/mountpoint
+cp $GUIDEDIR/u-boot-xlnx/u-boot.img /path/to/mountpoint
+cp $GUIDEDIR/linux-on-litex-vexriscv/output/images/Image /path/to/mountpoint
+cp $GUIDEDIR/linux-on-litex-vexriscv/output/images/rootfs.cpio /path/to/mountpoint
 ```
 
-Insert SD card in the board and power it up.
-Stop U-Boot from autoboot by pressing any key during countdown.
+## Booting the system
+
+Insert SD card to the Zybo's socket and power up the board.
+Prevent U-Boot autobooting by pressing any key during countdown.
+
+Connect to Litex serial console with Litex loader:
+```sh
+sudo python3 $GUIDEDIR/litex_term.py --kernel $GUIDEDIR/linux-files/emulator.bin --kernel-adr 0x10000000 /dev/ttyUSBX
+# /dev/ttyUSBX is a node of the serial adapter driver
+```
+
+The loader will wait for the Litex system reset and load, load emulator and start the boot process.
+
+In the second terminal connect to Zybo's serial console.
 Run the following commands in U-Boot's terminal:
 
 Load FPGA bistream:
@@ -122,10 +143,13 @@ load mmc 0 0x10800000 rootfs.cpio
 load mmc 0 0x11000000 rv32.dtb
 ```
 
-Release LiteX system from reset:
-```sh
-mw.l 0x40000000 1
-```
+After the FPGA bitstream is loaded LiteX bootlader will start automatically.
 
 LiteX system should start booting Linux.
 The output is visible on Litex' serial console.
+
+Linux credentials are:
+```
+user: root
+pass: root
+```

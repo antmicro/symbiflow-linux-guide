@@ -1,0 +1,65 @@
+/dts-v1/;
+
+/ {
+	#address-cells = <0x02>;
+	#size-cells = <0x02>;
+	compatible = "enjoy-digital,litex-vexriscv-soclinux";
+	model = "VexRiscv SoCLinux";
+
+	chosen {
+		bootargs = "mem=32M@0xc0000000 rootwait console=liteuart earlycon=sbi root=/dev/ram0 init=/sbin/init swiotlb=32";
+		linux,initrd-start = <0xc0800000>;
+		linux,initrd-end = <0xc1000000>;
+	};
+
+	cpus {
+		#address-cells = <0x01>;
+		#size-cells = <0x00>;
+		timebase-frequency = <0x2faf080>;
+
+		cpu@0 {
+			clock-frequency = <0x00>;
+			compatible = "spinalhdl,vexriscv\0sifive,rocket0\0riscv";
+			d-cache-block-size = <0x40>;
+			d-cache-sets = <0x40>;
+			d-cache-size = <0x8000>;
+			d-tlb-sets = <0x01>;
+			d-tlb-size = <0x20>;
+			device_type = "cpu";
+			i-cache-block-size = <0x40>;
+			i-cache-sets = <0x40>;
+			i-cache-size = <0x8000>;
+			i-tlb-sets = <0x01>;
+			i-tlb-size = <0x20>;
+			mmu-type = "riscv,sv32";
+			reg = <0x00>;
+			riscv,isa = "rv32ima";
+			sifive,itim = <0x01>;
+			status = "okay";
+			tlb-split;
+		};
+	};
+
+	memory@c0000000 {
+		device_type = "memory";
+		reg = <0x00 0xc0000000 0x01 0x2000000>;
+	};
+
+	soc {
+		#address-cells = <0x02>;
+		#size-cells = <0x02>;
+		compatible = "simple-bus";
+		ranges;
+
+		serial@f0001000 {
+			device_type = "serial";
+			compatible = "litex,liteuart";
+			reg = <0x00 0xf0001800 0x00 0x100>;
+			status = "okay";
+		};
+	};
+
+	aliases {
+		serial0 = "/soc/serial@f0001000";
+	};
+};
