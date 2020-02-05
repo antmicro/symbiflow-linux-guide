@@ -4,3 +4,6 @@
 [submodule "linux-on-litex-vexriscv"]
 	path = linux-on-litex-vexriscv
 	url = https://github.com/litex-hub/linux-on-litex-vexriscv.git
+[submodule "u-boot-xlnx"]
+	path = u-boot-xlnx
+	url = https://github.com/Xilinx/u-boot-xlnx.git
