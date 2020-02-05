@@ -1,0 +1,3 @@
+[submodule "symbiflow-arch-defs"]
+	path = symbiflow-arch-defs
+	url = https://github.com/antmicro/symbiflow-arch-defs
