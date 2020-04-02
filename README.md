@@ -10,7 +10,7 @@ The guide targets [Zybo Z7 7010 platform](https://store.digilentinc.com/zybo-z7-
 
 ```sh
 cd ~
-git clone https://github.com/SymbiFlow/symbiflow-linux-guide
+git clone https://github.com/antmicro/symbiflow-linux-guide
 cd symbiflow-linux-guide
 git submodule update --init --recursive
 export GUIDEDIR=$(pwd)
